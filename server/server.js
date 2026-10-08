@@ -16,48 +16,13 @@ dotenv.config()
 const app = express()
 
 const PORT = process.env.PORT || 3000
-
 // =====================================================
 // CORS CONFIGURATION
 // =====================================================
 
-const configuredFrontendUrl = (
-  process.env.FRONTEND_URL || 'http://localhost:5173'
-)
-  .trim()
-  .replace(/\/+$/, '')
-
-const allowedOrigins = [
-  configuredFrontendUrl,
-  'http://localhost:5173',
-  'http://localhost:5174',
-].filter((origin, index, array) => array.indexOf(origin) === index)
-
 const corsOptions = {
-  origin: (origin, callback) => {
-    // Requests such as direct server-to-server requests
-    // may not contain an Origin header.
-    if (!origin) {
-      return callback(null, true)
-    }
-
-    const normalizedOrigin = origin
-      .trim()
-      .replace(/\/+$/, '')
-
-    if (allowedOrigins.includes(normalizedOrigin)) {
-      return callback(null, true)
-    }
-
-    console.error('CORS blocked origin:', origin)
-
-    return callback(
-      new Error(`CORS blocked origin: ${origin}`)
-    )
-  },
-
+  origin: true,
   credentials: true,
-
   methods: [
     'GET',
     'POST',
@@ -66,21 +31,17 @@ const corsOptions = {
     'DELETE',
     'OPTIONS',
   ],
-
   allowedHeaders: [
     'Content-Type',
     'Authorization',
   ],
-
   optionsSuccessStatus: 204,
 }
 
-// Enable CORS
 app.use(cors(corsOptions))
 
-// Explicitly handle preflight requests
+// Explicitly handle browser preflight requests
 app.options('*', cors(corsOptions))
-
 // =====================================================
 // BODY PARSER
 // =====================================================
