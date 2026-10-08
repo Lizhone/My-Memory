@@ -17,3 +17,10 @@ build/
 
 server/node_modules/
 client/node_modules/
+# Environment files
+.env.*
+!.env.example
+
+# Database backups
+*.backup
+*.sql
