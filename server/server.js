@@ -18,41 +18,68 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 // =====================================================
-// CORS
+// CORS CONFIGURATION
 // =====================================================
 
-const frontendUrl = (
+const configuredFrontendUrl = (
   process.env.FRONTEND_URL || 'http://localhost:5173'
 )
   .trim()
   .replace(/\/+$/, '')
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no Origin header
-      // such as server-to-server requests.
-      if (!origin) {
-        return callback(null, true)
-      }
+const allowedOrigins = [
+  configuredFrontendUrl,
+  'http://localhost:5173',
+  'http://localhost:5174',
+].filter((origin, index, array) => array.indexOf(origin) === index)
 
-      const requestOrigin = origin
-        .trim()
-        .replace(/\/+$/, '')
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Requests such as direct server-to-server requests
+    // may not contain an Origin header.
+    if (!origin) {
+      return callback(null, true)
+    }
 
-      if (requestOrigin === frontendUrl) {
-        return callback(null, true)
-      }
+    const normalizedOrigin = origin
+      .trim()
+      .replace(/\/+$/, '')
 
-      return callback(
-        new Error(`CORS blocked origin: ${origin}`)
-      )
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-)
+    if (allowedOrigins.includes(normalizedOrigin)) {
+      return callback(null, true)
+    }
+
+    console.error('CORS blocked origin:', origin)
+
+    return callback(
+      new Error(`CORS blocked origin: ${origin}`)
+    )
+  },
+
+  credentials: true,
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+  ],
+
+  optionsSuccessStatus: 204,
+}
+
+// Enable CORS
+app.use(cors(corsOptions))
+
+// Explicitly handle preflight requests
+app.options('*', cors(corsOptions))
 
 // =====================================================
 // BODY PARSER
@@ -65,7 +92,7 @@ app.use(express.json())
 // =====================================================
 
 app.get('/health', (req, res) => {
-  res.json({
+  res.status(200).json({
     status: 'ok',
     message: 'My Memory API is running',
   })
@@ -100,11 +127,22 @@ app.use(
 )
 
 // =====================================================
-// ERROR HANDLING
+// 404 HANDLER
+// =====================================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: 'Route not found',
+    path: req.originalUrl,
+  })
+})
+
+// =====================================================
+// ERROR HANDLER
 // =====================================================
 
 app.use((err, req, res, next) => {
-  console.error('Error:', err)
+  console.error('Server error:', err)
 
   if (err.message?.startsWith('CORS blocked origin:')) {
     return res.status(403).json({
@@ -112,7 +150,7 @@ app.use((err, req, res, next) => {
     })
   }
 
-  res.status(500).json({
+  return res.status(500).json({
     message: 'Internal server error',
   })
 })
@@ -127,7 +165,7 @@ const startServer = async () => {
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`My Memory API running on port ${PORT}`)
-      console.log(`Frontend origin allowed: ${frontendUrl}`)
+      console.log(`Allowed origins: ${allowedOrigins.join(', ')}`)
     })
   } catch (err) {
     console.error('Failed to start server:', err)
