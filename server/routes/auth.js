@@ -248,7 +248,10 @@ router.post('/forgot-password', async (req, res) => {
         [userId]
       );
 
-      console.error('Password-reset email could not be sent.');
+      console.error(
+  'Password-reset email could not be sent:',
+  emailError.message
+);
 
       return res.status(503).json({
         message: 'Unable to send the reset email. Please try again later.'
