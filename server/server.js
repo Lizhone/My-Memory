@@ -16,6 +16,7 @@ dotenv.config()
 const app = express()
 
 const PORT = process.env.PORT || 3000
+
 // =====================================================
 // CORS CONFIGURATION
 // =====================================================
@@ -23,6 +24,7 @@ const PORT = process.env.PORT || 3000
 const corsOptions = {
   origin: true,
   credentials: true,
+
   methods: [
     'GET',
     'POST',
@@ -31,17 +33,17 @@ const corsOptions = {
     'DELETE',
     'OPTIONS',
   ],
+
   allowedHeaders: [
     'Content-Type',
     'Authorization',
   ],
+
   optionsSuccessStatus: 204,
 }
 
 app.use(cors(corsOptions))
 
-// Explicitly handle browser preflight requests
-app.options('*', cors(corsOptions))
 // =====================================================
 // BODY PARSER
 // =====================================================
@@ -105,13 +107,7 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error('Server error:', err)
 
-  if (err.message?.startsWith('CORS blocked origin:')) {
-    return res.status(403).json({
-      message: 'CORS policy blocked this request',
-    })
-  }
-
-  return res.status(500).json({
+  res.status(500).json({
     message: 'Internal server error',
   })
 })
@@ -126,7 +122,7 @@ const startServer = async () => {
 
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`My Memory API running on port ${PORT}`)
-      console.log(`Allowed origins: ${allowedOrigins.join(', ')}`)
+      console.log('CORS enabled')
     })
   } catch (err) {
     console.error('Failed to start server:', err)
