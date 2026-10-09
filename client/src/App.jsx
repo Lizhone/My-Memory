@@ -8,6 +8,8 @@ import AllMemoriesPage from './pages/AllMemoriesPage'
 import MemoryDetailsPage from './pages/MemoryDetailsPage'
 import RemindersPage from './pages/RemindersPage'
 import './index.css'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -50,6 +52,15 @@ function App() {
         <Route path="/memories" element={isAuthenticated ? <AllMemoriesPage /> : <Navigate to="/login" replace />} />
         <Route path="/memory/:id" element={isAuthenticated ? <MemoryDetailsPage /> : <Navigate to="/login" replace />} />
         <Route path="/reminders" element={isAuthenticated ? <RemindersPage /> : <Navigate to="/login" replace />} />
+        <Route
+  path="/forgot-password"
+  element={<ForgotPasswordPage />}
+/>
+
+<Route
+  path="/reset-password"
+  element={<ResetPasswordPage />}
+/>
       </Routes>
     </Router>
   )

@@ -482,23 +482,21 @@ export default function LoginPage({ setIsAuthenticated }) {
                   </span>
 
                 </label>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setError(
-                      'Password reset is not available yet.'
-                    )
-                  }}
-                  className="
-                    text-primary-blue
-                    text-sm
-                    font-semibold
-                    hover:text-blue-700
-                    transition-colors
-                  "
-                >
-                  Forgot password?
+<button
+  type="button"
+  onClick={() => {
+    setError('')
+    navigate('/forgot-password')
+  }}
+  className="
+    text-primary-blue
+    text-sm
+    font-semibold
+    hover:text-blue-700
+    transition-colors
+  "
+>
+                 Forgot password?
                 </button>
 
               </div>

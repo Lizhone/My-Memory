@@ -1,3 +1,4 @@
+
 import pkg from 'pg'
 const { Pool } = pkg
 
@@ -37,11 +38,24 @@ export const initializeDatabase = async () => {
       )
     `)
 
-    // Add name to older databases that were created
-    // before the name column existed.
+    // Add name to older databases
     await client.query(`
       ALTER TABLE users
       ADD COLUMN IF NOT EXISTS name VARCHAR(100)
+    `)
+
+    // =================================================
+    // PASSWORD RESET FIELDS
+    // =================================================
+
+    await client.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS password_reset_token_hash VARCHAR(64)
+    `)
+
+    await client.query(`
+      ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS password_reset_expires TIMESTAMP
     `)
 
     // =================================================
